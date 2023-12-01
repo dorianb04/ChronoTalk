@@ -44,12 +44,20 @@ export default {
   methods: {
     sendMessage() {
       this.isInputDisabled = true;
-      const msg =  this.userMessage
+      const requestData = {
+        characterName: this.characterName,
+        message: this.userMessage,
+      };
       this.userMessage = "";
       axios
-          .post("/api/game/postMessage/", msg)
+          .post("/api/game/postMessage/", requestData)
           .then(response => {
-              console.log(response)
+               // Log MP4_path and CHAR_response to the console
+              console.log('MP4_path:', response.data.MP4_path);
+              console.log('CHAR_response:', response.data.CHAR_response);
+
+              // Update your Vue component state or perform other actions if needed
+              // ...
               this.userMessage = "";
               this.isInputDisabled = false;
           })
