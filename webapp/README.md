@@ -10,3 +10,13 @@ python3 manage.py runserve
 npm run serve
 
 
+#LIBRARIES
+
+Pip : 
+    -django
+    -djoser
+    -django-rest-framework
+    -django-cors-headers
+
+NPM : 
+    -@vue/cli
