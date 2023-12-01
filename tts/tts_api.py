@@ -15,18 +15,21 @@ import uuid #TODO: remove this
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-def model_loader(gpu=False):
+def model_loader():
     """
     Loads the model from the checkpoint and returns the model object
     """
     config = XttsConfig()
-    config.load_json("TTS_api/xtts_2/config.json")
+    config.load_json("tts/xtts_2/config.json")
     model = Xtts.init_from_config(config)
-    if gpu:
-        model.load_checkpoint(config, checkpoint_dir="TTS_api/xtts_2/", use_deepspeed=True)
-        model.cuda()
+
+    gpu = 0 if torch.cuda.is_available() else -1
+
+    if gpu==0:
+        model.load_checkpoint(config, checkpoint_dir="tts/xtts_2/", use_deepspeed=True)
+        model.to(torch.device(gpu))
     else:
-        model.load_checkpoint(config, checkpoint_dir="TTS_api/xtts_2/", use_deepspeed=False)
+        model.load_checkpoint(config, checkpoint_dir="tts/xtts_2/", use_deepspeed=False)
     logging.info("model_loader: model loaded - using gpu: {gpu}")
     return model
 
@@ -39,10 +42,10 @@ def speaker(model,character_id:str=None):
     """
     src_audios = {"0":"test_audio","1":"01_narrator","2":"02_napoleon","3":"03_bluetooth"} #TODO should be extended to all characters. Might be better to move out of def
     if character_id is None:
-        gpt_cond_latent, speaker_embedding = model.get_conditioning_latents(audio_path=["TTS_api/src_audio/test_audio.wav"])
+        gpt_cond_latent, speaker_embedding = model.get_conditioning_latents(audio_path=["tts/src_audio/test_audio.wav"])
         logger.info("speaker: character_id is None - using test_audio")
     else:
-        gpt_cond_latent, speaker_embedding = model.get_conditioning_latents(audio_path=[f"TTS_api/src_audio/{src_audios[character_id]}.wav"])
+        gpt_cond_latent, speaker_embedding = model.get_conditioning_latents(audio_path=[f"tts/src_audio/{src_audios[character_id]}.wav"])
         logger.info(f"speaker: character_id is {character_id} - using {src_audios[character_id]}")
     return gpt_cond_latent, speaker_embedding
 
@@ -60,7 +63,7 @@ def tts_generator(model, prompt_id:str, text_prompt:str, gpt_cond_latent, speake
         speaker_embedding,
         temperature=0.7, # Add custom parameters here
     )
-    torchaudio.save(f"TTS_api/output_audio/{prompt_id}.wav", torch.tensor(out["wav"]).unsqueeze(0), 24000)
+    torchaudio.save(f"tts/output_audio/{prompt_id}.wav", torch.tensor(out["wav"]).unsqueeze(0), 24000)
     logger.info(f"tts_generator: audio file saved as {prompt_id}.wav")
 
 
@@ -69,11 +72,11 @@ def tts_api(character_id=None,prompt_id=None,text_prompt=None, denoise=True):
         logger.error("main: no character_id provided")
     if not prompt_id:
         logger.error("main: no prompt_id provided")
-    model = model_loader(gpu=False)
+    model = model_loader()
     gpt_cond_latent, speaker_embedding = speaker(model, character_id=character_id)
     tts_generator(model, prompt_id=prompt_id, text_prompt=text_prompt, gpt_cond_latent=gpt_cond_latent, speaker_embedding=speaker_embedding, lang="en")
     if denoise:
-        denoiser(noisy_audio_path=f"TTS_api/output_audio/{prompt_id}.wav", output_path=f"TTS_api/denoised_audio/{prompt_id}.wav")
+        denoiser(noisy_audio_path=f"tts/output_audio/{prompt_id}.wav", output_path=f"tts/denoised_audio/{prompt_id}.wav")
     logger.info("main: main completed. character_id: {character_id}, prompt_id: {prompt_id}, denoise: {denoise}")
 
 def main(character_id=None,prompt_id=None,text_prompt=None, denoise=True):
@@ -81,17 +84,17 @@ def main(character_id=None,prompt_id=None,text_prompt=None, denoise=True):
         prompt_list = prompt_splitter(text_prompt)
         for i, prompt in enumerate(prompt_list):
             tts_api(character_id=character_id,prompt_id=prompt_id,text_prompt=prompt, denoise=denoise)
-            os.rename(f"TTS_api/denoised_audio/{prompt_id}.wav", f"TTS_api/denoised_audio/{prompt_id}_{i}.wav")
+            os.rename(f"tts/denoised_audio/{prompt_id}.wav", f"tts/denoised_audio/{prompt_id}_{i}.wav")
         for i in range(len(prompt_list)):
             if i+1 >= len(prompt_list):
                 break
-            sound1 = AudioSegment.from_wav(f"TTS_api/denoised_audio/{prompt_id}_{i}.wav")
-            sound2 = AudioSegment.from_wav(f"TTS_api/denoised_audio/{prompt_id}_{i+1}.wav")
+            sound1 = AudioSegment.from_wav(f"tts/denoised_audio/{prompt_id}_{i}.wav")
+            sound2 = AudioSegment.from_wav(f"tts/denoised_audio/{prompt_id}_{i+1}.wav")
             combined_sounds = sound1 + sound2
-            combined_sounds.export(f"TTS_api/denoised_audio/{prompt_id}_{i+1}.wav", format="wav")
-        os.rename(f"TTS_api/denoised_audio/{prompt_id}_{len(prompt_list)-1}.wav", f"TTS_api/denoised_audio/{prompt_id}.wav")
+            combined_sounds.export(f"tts/denoised_audio/{prompt_id}_{i+1}.wav", format="wav")
+        os.rename(f"tts/denoised_audio/{prompt_id}_{len(prompt_list)-1}.wav", f"tts/denoised_audio/{prompt_id}.wav")
         for i in range(len(prompt_list)-1):
-            os.remove(f"TTS_api/denoised_audio/{prompt_id}_{i}.wav")
+            os.remove(f"tts/denoised_audio/{prompt_id}_{i}.wav")
 
     else:
         tts_api(character_id=character_id,prompt_id=prompt_id,text_prompt=text_prompt, denoise=denoise)
