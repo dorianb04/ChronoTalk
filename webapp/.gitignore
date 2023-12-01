@@ -6,6 +6,7 @@ __pycache__/
 
 # Ignore the virtual environment directory
 venv/
+pyvenv.cfg
 
 # Ignore the Django SQLite database file
 db.sqlite3
