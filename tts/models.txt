@@ -1,2 +1,6 @@
 need to download xtts_2 models and add to dir: xtts_2:
 https://drive.google.com/drive/folders/15cfWCAP8NdfjdnUvwJL0nrY7kPhyDzg2?usp=drive_link 
+
+
+https://drive.google.com/file/d/1BKitObw35JFlQ4suFmoorFGdbvHdBHJs/view?usp=sharing
+https://drive.google.com/file/d/1I6VQTA5ijXSaWlKVYnptwjbGPJUCrByQ/view?usp=sharing
