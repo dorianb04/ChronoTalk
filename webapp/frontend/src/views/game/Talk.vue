@@ -36,12 +36,25 @@ export default {
     return {
       characterName: this.$route.params.characterName,
       characterImage: this.loadCharacterImage(),
-      characterDialogue: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+      characterDialogue: "Loading...",
       userMessage: "",
       isInputDisabled: false,
     };
   },
+  mounted() {
+    this.getCharacterDialogue();
+  },
   methods: {
+    getCharacterDialogue() {
+      axios.get(`/api/game/getFirstMessage`, { params: { characterName: this.characterName } })
+        .then(response => {
+          this.characterDialogue = response.data.CHAR_response;
+        })
+        .catch(error => {
+          console.error('Error fetching character dialogue:', error);
+          this.characterDialogue = "Sorry, I can't talk right now.";
+        });
+    },
     sendMessage() {
       this.isInputDisabled = true;
       const requestData = {
@@ -59,6 +72,7 @@ export default {
               // Update your Vue component state or perform other actions if needed
               // ...
               this.userMessage = "";
+              this.characterDialogue = response.data.CHAR_response
               this.isInputDisabled = false;
           })
           .catch(error => {
