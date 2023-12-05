@@ -8,8 +8,8 @@
             </div>
 
             <div class="dialogue-bubble">
-                {{ characterDialogue }}
-            </div>
+                <p v-html="characterDialogue"></p>
+            </div> 
         </div>
 
         <div class="user-input">
@@ -126,6 +126,7 @@ export default {
   border-radius: 10px;
   margin-left: 10px;
 }
+
 
 .user-input {
   margin-top: 20px;
