@@ -5,6 +5,8 @@ python3 manage.py migrate
 
 python3 manage.py runserve
 
+specify the port of the app:
+python3 manage.py runserve <port>
 
 #FRONTEND
 npm run serve
