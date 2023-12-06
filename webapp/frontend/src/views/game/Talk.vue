@@ -183,6 +183,7 @@ export default {
   word-wrap: break-word;
 }
 
+
 .user-input {
   margin-top: 20px;
   padding: 10px;
