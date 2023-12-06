@@ -1,12 +1,12 @@
 <template>
-  <div id=wrapper class="has-background-grey">
-    <nav class="navbar is-dark">
+  <div class="MyWrapper">
+    <!--<nav class="navbar is-dark">
       <div class="navbar-brand">
         <router-link to="/" class="navbar-item">
           <strong>Chronotalk</strong>
         </router-link>
       </div>
-      <!--
+      
       <div class="navbar-menu">
         <div class="navbar-end">
           <template v-if="$store.state.isAuthenticated">
@@ -41,18 +41,18 @@
           </template>
         </div>
       </div>
-      -->
-    </nav>
+      
+    </nav>-->
 
     
 
     <section class="section">
       <router-view/>
     </section>
-
+<!--
     <footer class="footer has-background-dark">
       <p class="has-text-centered has-background-dark">Copyright (C) 2023</p>
-    </footer>
+    </footer>-->
   </div>
 </template>
 
@@ -79,11 +79,35 @@
 <style lang="scss">
 @import '../node_modules/bulma';
 
-#wrapper {
+
+
+.MyWrapper {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  background: -webkit-linear-gradient(-45deg, #183850 0, #183850 25%, #192C46 50%, #22254C 75%, #22254C 100%);
+  padding: 0px;
+  overflow: overlay;
 }
+
+.MyWrapper::-webkit-scrollbar {
+  width: 8px;
+}
+
+.MyWrapper::-webkit-scrollbar-thumb {
+  background-color: #6b6b6b;
+  border-radius: 4px;
+}
+
+.MyWrapper::-webkit-scrollbar-track {
+  background-color: #7070704d;
+}
+
+.MyWrapper::-webkit-scrollbar-thumb:hover {
+  background-color: #555;
+}
+
+
 
 .content-wrapper {
   flex: 1;
@@ -95,5 +119,14 @@
   bottom: 0;
   width: 100%;
   margin-top: auto;
+}
+
+::-webkit-scrollbar {
+   display: none;
+}
+
+
+body {
+  overflow: hidden;
 }
 </style>
