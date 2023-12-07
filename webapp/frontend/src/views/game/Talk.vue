@@ -190,7 +190,7 @@ export default {
   padding: 10px 20px;
   border-radius: 10px;
   margin: 5px;
-  background: linear-gradient(86deg, rgba(70,184,83,1) 0%, rgba(98,182,116,1) 100%);
+  background: linear-gradient(90deg, rgba(52,135,61,1) 0%, rgba(66,122,78,1) 100%);
   color: #fff;
   align-self: flex-end; /* Align user messages to the right */
   max-width: 70vh;
