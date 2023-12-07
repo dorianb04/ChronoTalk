@@ -44,7 +44,7 @@ def postMessage(request):
     # Return a response
     response_data = {
         'MP4_path': "/somepath/file.mp4",
-        'CHAR_response': response.replace("\n", '<br>')[1:],
+        'CHAR_response': response.replace("\n", '<br>')[4:],
         # Add any other data you want to include in the response
     }
     return Response(response_data)
