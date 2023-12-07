@@ -1,13 +1,13 @@
 <template>
   <div class="MyWrapper">
-    <!--<nav class="navbar is-dark">
+    <nav class="navbar is-dark">
       <div class="navbar-brand">
         <router-link to="/" class="navbar-item">
           <strong>Chronotalk</strong>
         </router-link>
       </div>
       
-      <div class="navbar-menu">
+      <!--<div class="navbar-menu">
         <div class="navbar-end">
           <template v-if="$store.state.isAuthenticated">
             
@@ -40,13 +40,13 @@
             </div>
           </template>
         </div>
-      </div>
+      </div>-->
       
-    </nav>-->
+    </nav>
 
     
 
-    <section class="section">
+    <section>
       <router-view/>
     </section>
 <!--

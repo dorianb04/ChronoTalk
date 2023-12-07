@@ -122,7 +122,7 @@ export default {
   margin-right: 20px;
   display: flex;
   flex-direction: column;
-  height: 87vh;
+  max-height: 90vh;
 }
 
 .talk-container {
@@ -135,11 +135,14 @@ export default {
 
 .character-photo {
   flex: 1;
+  
 }
 
 .character-photo img {
   width: 100%;
   border-radius: 50%;
+  
+  max-height: 90vh;
 }
 
 .dialogue-container {
