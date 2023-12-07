@@ -1,50 +1,48 @@
 <template>
-    <div>
-      <div class="game-menu">
-        <h1 class="title has-text-white has-text-centered">Welcome to Chronotalk</h1>
+  <div>
+    <div class="game-menu">
+      <h1 class="title has-text-white has-text-centered">Welcome to Chronotalk</h1>
         
-        <div class="cards-of-characters columns is-multiline is-centered is-marginless">
-            <div v-for="character in characters" :key="character.id" class="column is-one-third">
-            <router-link :to="{ name: 'GameTalk', params: { characterName: character.name } }">
-                <!-- Wrap card content in a container -->
-                <div class="card-container">
-                    <div class="card mx-4 my-4">
-                        <div>
-
-                        </div>
-                        <div class="card-image">
-                            <figure class="image is-4by3 m-6">
-                                <img :src="character.image" alt="Character Image" class="is-centered my-5 rounded"/>
-                            </figure>
-                        </div>
-                        <div class="card-content">
-                            <div class="media">
-                                <div class="media-left">
-                                <figure class="image is-48x48">
-                                    <img :src="character.image" alt="Character Image" />
-                                </figure>
-                                </div>
-                                <div class="media-content">
-                                <p class="title is-4">{{ character.name }}</p>
-                                <p class="subtitle is-6">{{ character.date }}</p>
-                                </div>
-                            </div>
-                            <div class="content">
-                                {{ character.description }}
-                            </div>
-                        </div>
-                    </div>
+      <div class="cards-of-characters columns is-multiline is-centered is-marginless">
+        <div v-for="character in characters" :key="character.id" class="column is-one-third">
+          <router-link :to="{ name: 'GameTalk', params: { characterName: character.name } }">
+            <!-- Wrap card content in a container -->
+            <div class="card-container">
+              <div class="card mx-4 my-4">
+                <div>
+                  
                 </div>
-            </router-link>
+                <div class="card-image">
+                  <figure class="image is-4by3 m-6">
+                    <img :src="character.image" alt="Character Image" class="myimage is-centered my-5"/>
+                  </figure>
+                </div>
+                <div class="card-content">
+                  <div class="media">
+                    <div class="media-left">
+                      <figure class="image is-48x48">
+                        <img :src="character.image" alt="Character Image" class="myimage"/>
+                      </figure>
+                    </div>
+                    <div class="media-content">
+                      <p class="title is-4 has-text-white">{{ character.name }}</p>
+                      <p class="subtitle is-6 has-text-white">{{ character.date }}</p>
+                    </div>
+                  </div>
+                  <div class="content">
+                    {{ character.description }}
+                  </div>
+                </div>
+              </div>
             </div>
+          </router-link>
         </div>
-        
-  
-        <h1 class="title has-text-white has-text-centered">
-          Please select your character
-        </h1>
       </div>
+      <h1 class="subtitle has-text-white has-text-centered">
+        Please select your character
+      </h1>
     </div>
+  </div>
 </template>
   
 <script>
@@ -92,16 +90,24 @@
   /* Add any specific styles for the GameMenu component here if needed */
   .cards-of-characters {
     margin-top: 20px;
+    color: #fff;
   }
 
   .card-container {
     display: flex;
     flex-direction: column;
-    height: 100%;
+    height: 75vh;
+    color: #fff;
+  }
+
+  .myimage {
+    border-radius: 50px;
   }
 
   .card {
     border-radius: 50px; /* Add rounded border */
+    background-color: #7070704d;
+    color: #fff;
   }
 </style>
   

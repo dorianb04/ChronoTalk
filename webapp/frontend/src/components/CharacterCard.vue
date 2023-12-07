@@ -8,7 +8,7 @@
       <div class="card-content">
         <div class="media">
           <div class="media-content">
-            <p class="title is-4">{{ character.name }}</p>
+            <p class="title is-4 has-text-white">{{ character.name }}</p>
           </div>
         </div>
       </div>

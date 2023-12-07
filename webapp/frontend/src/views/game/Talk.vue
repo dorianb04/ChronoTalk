@@ -64,10 +64,6 @@ export default {
         message: this.userMessage,
       };
       this.addToConversation(this.userMessage, 'user');
-      // Scroll to the bottom after adding a new message
-      this.$nextTick(() => {
-        this.scrollToBottom();
-      });
       axios
         .post("/api/game/postMessage/", requestData)
         .then((response) => {
@@ -75,10 +71,6 @@ export default {
           this.userMessage = "";
           this.characterDialogue = response.data.CHAR_response;
           this.isInputDisabled = false;
-          // Scroll to the bottom after adding a new message
-          this.$nextTick(() => {
-            this.scrollToBottom();
-          });
         })
         .catch((error) => {
           if (error.response) {
@@ -96,6 +88,21 @@ export default {
     },
     addToConversation(text, type) {
       this.conversation.push({ text, type });
+      if (type === 'character') {
+        this.$nextTick(() => {
+          const characterMessage = this.$refs.dialogueBubble.lastElementChild.lastElementChild;
+          characterMessage.classList.add('slide-in-left');
+          this.scrollToBottom();
+        });
+      } else {
+        this.$nextTick(() => {
+          const userMessage = this.$refs.dialogueBubble.lastElementChild.lastElementChild;
+          setTimeout(() => {
+            userMessage.classList.add('slide-in-right');
+            this.scrollToBottom();
+          }, 0);
+        });
+      }
     },
     loadCharacterImage() {
       try {
@@ -170,7 +177,14 @@ export default {
   align-self: flex-start; /* Align character messages to the left */
   max-width: 70vh;
   word-wrap: break-word;
+  transform: translateX(-100%);
+  transition: transform 0.5s ease-in-out;
 }
+.slide-in-left {
+  transform: translateX(0);
+}
+
+
 
 .user-message {
   padding: 10px 20px;
@@ -181,8 +195,13 @@ export default {
   align-self: flex-end; /* Align user messages to the right */
   max-width: 70vh;
   word-wrap: break-word;
+  transform: translateX(100%);
+  transition: transform 0.5s ease-in-out;
 }
 
+.slide-in-right {
+  transform: translateX(0);
+}
 
 
 .user-input {
