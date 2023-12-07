@@ -141,7 +141,7 @@ export default {
 .character-photo img {
   width: 100%;
   border-radius: 50%;
-  
+  max-width: 90vh;
   max-height: 90vh;
 }
 
