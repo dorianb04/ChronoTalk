@@ -10,6 +10,7 @@ from llm import run_conversation
 # Initialization of the global variables
 llm_chain = None
 conv_iteration = 0
+isModelLoad = False
 
 @api_view(['POST'])
 def postMessage(request):
@@ -56,11 +57,14 @@ def getFirstMessage(request):
 
     character_name = request.query_params.get('characterName', '')
 
-    # Instanciation of the model chain
-    print("Loading the model")
-    llm_chain = run_conversation.create_chain(character_name)
+    
 
-    prefix = "Start the conversation with respect to what I said before."
+    prefix = """Start the conversation with respect to what I said before. You tell me about your history until the end of the french revolution. Then Create a new dilemma and generate 4 options for me to choose in the form of a list like this:
+        <br>1. ...
+        <br>2. ...
+        <br>3. ...
+        <br>4. ...
+    """
     
     message = llm_chain.predict(user_input=prefix)
     #message ="e"
@@ -73,3 +77,21 @@ def getFirstMessage(request):
         'CHAR_response': message,
     }
     return Response(response_data)
+
+
+
+@api_view(['POST'])
+def loadModel(request):
+    global llm_chain
+    global isModelLoad
+    
+    if isModelLoad:
+        return Response({'Status': "Model already loaded"})
+    
+    else:
+        # Instanciation of the model chain
+        print("Loading the model")
+        llm_chain = run_conversation.create_chain()
+        isModelLoad = True
+
+    return Response({'Status': "Model loaded"})

@@ -7,7 +7,11 @@
 
       <div class="dialogue-container">
         <div class="dialogue-bubble" ref="dialogueBubble">
-          <div v-for="(message, index) in conversation" :key="index" class="message-container">
+          <div
+            v-for="(message, index) in conversation"
+            :key="index"
+            class="message-container"
+          >
             <div v-if="message.type === 'character'" class="character-message">
               <p v-html="message.text"></p>
             </div>
@@ -18,17 +22,27 @@
         </div>
 
         <div class="user-input">
-          <textarea v-model="userMessage" @keydown.enter="sendMessage" :disabled="isInputDisabled" placeholder="Type your message..."></textarea>
-          <!--class="button is-medium is-rounded has-text-weight-bold"--><button class="button-85" @click="sendMessage" :disabled="userMessage.trim().length === 0">Send</button>
+          <textarea
+            v-model="userMessage"
+            @keydown.enter="sendMessage"
+            :disabled="isInputDisabled"
+            :placeholder="placeholderText"
+          ></textarea>
+          <!--class="button is-medium is-rounded has-text-weight-bold"--><button
+            class="button-85"
+            @click="sendMessage"
+            :disabled="userMessage.trim().length === 0 || !responseReceived"
+          >
+            Send
+          </button>
         </div>
       </div>
     </div>
   </div>
 </template>
-  
-  
+
 <script>
-import axios from 'axios'
+import axios from "axios";
 export default {
   data() {
     return {
@@ -36,8 +50,11 @@ export default {
       characterImage: this.loadCharacterImage(),
       characterDialogue: "Loading...",
       userMessage: "",
-      isInputDisabled: false,
+      isInputDisabled: true,
       conversation: [],
+      responseReceived: false,
+      placeholderText: "Please wait for Character loading...",
+      LimitMessage: 5,
     };
   },
   mounted() {
@@ -45,32 +62,53 @@ export default {
   },
   methods: {
     getCharacterDialogue() {
+      this.addToConversation("Loading...", "character");
+
       axios
-        .get(`/api/game/getFirstMessage`, { params: { characterName: this.characterName } })
+        .get(`/api/game/getFirstMessage`, {
+          params: { characterName: this.characterName },
+        })
         .then((response) => {
           this.characterDialogue = response.data.CHAR_response;
-          this.addToConversation(response.data.CHAR_response, 'character');
+          this.conversation = [];
+          this.addToConversation(response.data.CHAR_response, "character");
+          this.scrollToBottom();
+          this.isInputDisabled = false;
+          this.responseReceived = true;
+          this.placeholderText = "Type your message...";
         })
         .catch((error) => {
-          console.error('Error fetching character dialogue:', error);
+          console.error("Error fetching character dialogue:", error);
           this.characterDialogue = "Sorry, I can't talk right now.";
-          this.addToConversation(this.characterDialogue, 'character');
+          this.addToConversation(this.characterDialogue, "character");
         });
     },
     sendMessage() {
       this.isInputDisabled = true;
+      this.responseReceived = false;
+      this.placeholderText = "Please wait for response...";
       const requestData = {
         characterName: this.characterName,
         message: this.userMessage,
       };
-      this.addToConversation(this.userMessage, 'user');
+      this.addToConversation(this.userMessage, "user");
+      this.userMessage = "";
       axios
         .post("/api/game/postMessage/", requestData)
         .then((response) => {
-          this.addToConversation(response.data.CHAR_response, 'character');
-          this.userMessage = "";
+          this.addToConversation(response.data.CHAR_response, "character");
+
           this.characterDialogue = response.data.CHAR_response;
-          this.isInputDisabled = false;
+          this.LimitMessage = this.LimitMessage - 1;
+
+          if (this.LimitMessage > 0) {
+            this.isInputDisabled = false;
+            this.responseReceived = true;
+            this.placeholderText = "Type your message...";
+          } else {
+            this.placeholderText =
+              "It's the end of your chat, now we know why you are not in power!";
+          }
         })
         .catch((error) => {
           if (error.response) {
@@ -88,17 +126,19 @@ export default {
     },
     addToConversation(text, type) {
       this.conversation.push({ text, type });
-      if (type === 'character') {
+      if (type === "character") {
         this.$nextTick(() => {
-          const characterMessage = this.$refs.dialogueBubble.lastElementChild.lastElementChild;
-          characterMessage.classList.add('slide-in-left');
+          const characterMessage =
+            this.$refs.dialogueBubble.lastElementChild.lastElementChild;
+          characterMessage.classList.add("slide-in-left");
           this.scrollToBottom();
         });
       } else {
         this.$nextTick(() => {
-          const userMessage = this.$refs.dialogueBubble.lastElementChild.lastElementChild;
+          const userMessage =
+            this.$refs.dialogueBubble.lastElementChild.lastElementChild;
           setTimeout(() => {
-            userMessage.classList.add('slide-in-right');
+            userMessage.classList.add("slide-in-right");
             this.scrollToBottom();
           }, 0);
         });
@@ -108,14 +148,13 @@ export default {
       try {
         return require(`@/assets/${this.$route.params.characterName.toLowerCase()}.jpg`);
       } catch (error) {
-        return require('@/assets/unknown.jpg');
+        return require("@/assets/unknown.jpg");
       }
     },
   },
 };
 </script>
 
-  
 <style scoped>
 .talk-page {
   margin-left: 20px;
@@ -135,7 +174,6 @@ export default {
 
 .character-photo {
   flex: 1;
-  
 }
 
 .character-photo img {
@@ -160,22 +198,25 @@ export default {
   overflow-y: auto;
   max-height: 80vh;
   display: flex;
-  flex-direction: column;/* Stack messages from bottom to top */
-  padding: 25px 10px
+  flex-direction: column; /* Stack messages from bottom to top */
+  padding: 25px 10px;
 }
 
 .message-container {
   margin-bottom: 10px;
   display: flex;
   flex-direction: column;
-  
 }
 
 .character-message {
   padding: 10px 20px;
   border-radius: 10px;
   margin: 5px;
-  background: linear-gradient(86deg, rgba(9,49,105,1) 35%, rgba(19,55,106,1) 100%);
+  background: linear-gradient(
+    86deg,
+    rgba(9, 49, 105, 1) 35%,
+    rgba(19, 55, 106, 1) 100%
+  );
   color: #fff;
   align-self: flex-start; /* Align character messages to the left */
   max-width: 70vh;
@@ -187,13 +228,15 @@ export default {
   transform: translateX(0);
 }
 
-
-
 .user-message {
   padding: 10px 20px;
   border-radius: 10px;
   margin: 5px;
-  background: linear-gradient(90deg, rgba(52,135,61,1) 0%, rgba(66,122,78,1) 100%);
+  background: linear-gradient(
+    90deg,
+    rgba(52, 135, 61, 1) 0%,
+    rgba(66, 122, 78, 1) 100%
+  );
   color: #fff;
   align-self: flex-end; /* Align user messages to the right */
   max-width: 70vh;
@@ -205,7 +248,6 @@ export default {
 .slide-in-right {
   transform: translateX(0);
 }
-
 
 .user-input {
   margin-top: 20px;
@@ -231,7 +273,7 @@ textarea::placeholder {
   color: #fff;
 }
 
-textarea:focus { 
+textarea:focus {
   outline: none !important;
 }
 
@@ -241,7 +283,6 @@ button {
   color: #fff;
   border-color: #5e5a5a;
 }
-
 
 /* CSS */
 .button-85 {
@@ -326,6 +367,4 @@ button {
 .dialogue-bubble::-webkit-scrollbar-thumb:hover {
   background-color: #555; /* Set the color of the scrollbar thumb on hover */
 }
-
-
 </style>

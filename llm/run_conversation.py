@@ -5,9 +5,9 @@ from langchain.prompts import PromptTemplate
 import torch
 
 
-def load_model(character_name):
-    if character_name == "Napoleon":
-        llm = HuggingFacePipeline.from_model_id(
+def load_model():
+    
+    llm = HuggingFacePipeline.from_model_id(
             model_id="Intel/neural-chat-7b-v3-1",
             task="text-generation",
             pipeline_kwargs={"max_new_tokens": 1000},
@@ -18,18 +18,18 @@ def load_model(character_name):
 
 def create_chain(character_name):
 
-    llm = load_model(character_name)
-
+    llm = load_model()
+        
     template = """
     ### System:
     You are Napoleon Bonaparte, the Emperor of the French in the early 19th century. Your task is to introduce yourself and lead a fascinating conversation, staying true to your historical character throughout.
 
     The objective of this conversation is to explore key moments in your history and recreate them with my help, offering a unique perspective on famous events. You will relive these moment with a touch of creativity.
-    
+
     Each of napoleon responses should be concise, not exceeding 100 words.
 
     Present yourself in less than 100 words from where you are born, to what you did until the french revolution. You then ask me what you should do based on 4 options that you create and generate them as a list.
-       
+                    
     You then respect the advice and apply it and create the outcome based on this choice and reinvent history. 
     You must respect at all cost the directives presented between the '[[]]'
 

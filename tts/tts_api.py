@@ -10,7 +10,8 @@ from denoiser import denoiser
 from text_spliter import prompt_splitter
 from pydub import AudioSegment
 
-import uuid #TODO: remove this
+import os
+os.environ['CUDA_LAUNCH_BLOCKING'] = "1"
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -23,13 +24,13 @@ def model_loader():
     config.load_json("tts/xtts_2/config.json")
     model = Xtts.init_from_config(config)
 
-    gpu = 0 if torch.cuda.is_available() else -1
+    gpu = "cuda" if torch.cuda.is_available() else "cpu"
 
-    if gpu==0:
-        model.load_checkpoint(config, checkpoint_dir="tts/xtts_2/", use_deepspeed=True)
-        model.to(torch.device(gpu))
+    if gpu=="cuda":
+        model.load_checkpoint(config, checkpoint_dir="tts/xtts_2/", eval=True)
+        model.cuda()
     else:
-        model.load_checkpoint(config, checkpoint_dir="tts/xtts_2/", use_deepspeed=False)
+        model.load_checkpoint(config, checkpoint_dir="tts/xtts_2/", eval=True)
     logging.info("model_loader: model loaded - using gpu: {gpu}")
     return model
 
@@ -100,7 +101,7 @@ def main(character_id=None,prompt_id=None,text_prompt=None, denoise=True):
         tts_api(character_id=character_id,prompt_id=prompt_id,text_prompt=text_prompt, denoise=denoise)
 
 unique_id = "02"
-test_prompt = "On this fateful day at Waterloo, the fate of nations hangs in the balance as my forces clash with the Duke of Wellington and the Prussian forces."     
+test_prompt = "On this fateful day at Waterloo, the fate of nations hangs in the balance as my forces clash with the Duke of Wellington and the Prussian forces. Nique ta mère."     
 
 
 if __name__ == "__main__":
