@@ -1,23 +1,28 @@
-###text_spliter.py###
+import re
 
-def prompt_splitter(input_str, max_length=250):
-    if len(input_str) <= max_length:
-        return [input_str]
+def prompt_splitter(prompt, max_length=250):
+    # Split the prompt into sentences
+    clean_prompt = prompt.replace('<br>', '').replace('\n', ' ').strip()
+    clean_prompt = re.sub(r'(?<=\d)[.]', "", clean_prompt)
+    sentences = re.split(r'(?<=[.!?]) +', clean_prompt)
 
-    substrings = []
-    current_substring = ""
-    words = input_str.split()
+    # Initialize variables
+    current_length = 0
+    current_prompt = ""
+    prompts = []
 
-    for word in words:
-        if len(current_substring) + len(word) + 1 <= max_length:
-            current_substring += " " + word
-        else:
-            substrings.append(current_substring.lstrip())
-            current_substring = word
+    # Iterate over sentences and group them
+    for sentence in sentences:
+        if current_length + len(sentence) > max_length and current_prompt:
+            prompts.append(current_prompt)
+            current_prompt = ""
+            current_length = 0
 
-    if current_substring:
-        substrings.append(current_substring)
+        current_prompt += sentence + " "
+        current_length += len(sentence) + 1
 
-    return substrings
+    # Add the last prompt if it's not empty
+    if current_prompt:
+        prompts.append(current_prompt.strip())
 
-
+    return prompts

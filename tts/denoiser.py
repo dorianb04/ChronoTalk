@@ -1,4 +1,4 @@
-from df.enhance import enhance, init_df, load_audio, save_audio
+from df import enhance, init_df
 import logging
 
 logger = logging.getLogger(__name__)
@@ -9,7 +9,7 @@ def denoiser(noisy_audio_path:str="output_audio/name.wav", output_path:str="enha
     model, df_state, _ = init_df()
     # Download and open some audio file. You use your audio files here
     audio_path = noisy_audio_path
-    audio, _ = load_audio(audio_path, sr=df_state.sr())
+    audio, _ = enhance.load_audio(audio_path, sr=df_state.sr())
     # Denoise the audio
     enhanced = enhance(model, df_state, audio, atten_lim_db=80)
     # Save for listening
