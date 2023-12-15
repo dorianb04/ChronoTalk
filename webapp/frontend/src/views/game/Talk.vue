@@ -14,6 +14,9 @@
           >
             <div v-if="message.type === 'character'" class="character-message">
               <p v-html="message.text"></p>
+              <div v-if="message.audio !== `null`">
+                <custom-audio-player :src="require(`@/assets/${message.audio}`)" />
+              </div>
             </div>
             <div v-else class="user-message">
               <p v-html="message.text"></p>
@@ -43,6 +46,7 @@
 
 <script>
 import axios from "axios";
+import CustomAudioPlayer from "@/components/CustomAudioPlayer.vue";
 export default {
   data() {
     return {
@@ -55,23 +59,28 @@ export default {
       responseReceived: false,
       placeholderText: "Please wait for Character loading...",
       LimitMessage: 5,
+      audio: null,
+      imagePath: null,
     };
+  },
+  components: {
+    CustomAudioPlayer,
   },
   mounted() {
     this.getCharacterDialogue();
   },
   methods: {
     getCharacterDialogue() {
-      this.addToConversation("Loading...", "character");
+      this.addToConversation("Loading...", "character", "null");
 
       axios
         .get(`/api/game/getFirstMessage`, {
           params: { characterName: this.characterName },
         })
-        .then((response) => {
+        .then(async (response) => {
           this.characterDialogue = response.data.CHAR_response;
           this.conversation = [];
-          this.addToConversation(response.data.CHAR_response, "character");
+          this.addToConversation(response.data.CHAR_response, "character", response.data.MP3_path);
           this.scrollToBottom();
           this.isInputDisabled = false;
           this.responseReceived = true;
@@ -80,7 +89,7 @@ export default {
         .catch((error) => {
           console.error("Error fetching character dialogue:", error);
           this.characterDialogue = "Sorry, I can't talk right now.";
-          this.addToConversation(this.characterDialogue, "character");
+          this.addToConversation(this.characterDialogue, "character", "null");
         });
     },
     sendMessage() {
@@ -91,12 +100,14 @@ export default {
         characterName: this.characterName,
         message: this.userMessage,
       };
-      this.addToConversation(this.userMessage, "user");
+      this.addToConversation(this.userMessage, "user", "null");
       this.userMessage = "";
       axios
         .post("/api/game/postMessage/", requestData)
         .then((response) => {
-          this.addToConversation(response.data.CHAR_response, "character");
+          console.log(response.data)
+          
+          this.addToConversation(response.data.CHAR_response, "character", response.data.MP3_path);
 
           this.characterDialogue = response.data.CHAR_response;
           this.LimitMessage = this.LimitMessage - 1;
@@ -124,15 +135,11 @@ export default {
       const dialogueBubble = this.$refs.dialogueBubble;
       dialogueBubble.scrollTop = dialogueBubble.scrollHeight;
     },
-    addToConversation(text, type) {
-      this.conversation.push({ text, type });
+    addToConversation(text, type, audio) {
+      this.conversation.push({ text, type, audio});
       if (type === "character") {
-        this.$nextTick(() => {
-          const characterMessage =
-            this.$refs.dialogueBubble.lastElementChild.lastElementChild;
-          characterMessage.classList.add("slide-in-left");
-          this.scrollToBottom();
-        });
+        const words = text.split(' ');
+        this.displayCharacterMessage(words);
       } else {
         this.$nextTick(() => {
           const userMessage =
@@ -149,6 +156,29 @@ export default {
         return require(`@/assets/${this.$route.params.characterName.toLowerCase()}.jpg`);
       } catch (error) {
         return require("@/assets/unknown.jpg");
+      }
+    },
+    resolvedAudioPath(path) {
+      // Resolve the audio path here, similar to loadCharacterImage()
+      // Example: return require(`../../assets/${this.characterName.toLowerCase()}.wav`);
+      return require(path);
+    },
+    delay(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    },
+    async displayCharacterMessage(words) {
+      for (let i = 0; i < words.length; i++) {
+        await this.delay(100); // Adjust the delay time (in milliseconds) between each word
+
+        const partialMessage = words.slice(0, i + 1).join(' ');
+        this.conversation[this.conversation.length - 1].text = partialMessage;
+
+        this.$nextTick(() => {
+          const characterMessage =
+            this.$refs.dialogueBubble.lastElementChild.lastElementChild;
+          characterMessage.classList.add('slide-in-left');
+          this.scrollToBottom();
+        });
       }
     },
   },
@@ -192,6 +222,7 @@ export default {
   background-color: #7070704d;
   border-radius: 10px;
   max-width: 100vh;
+  min-height: 90vh;
 }
 
 .dialogue-bubble {
@@ -367,4 +398,6 @@ button {
 .dialogue-bubble::-webkit-scrollbar-thumb:hover {
   background-color: #555; /* Set the color of the scrollbar thumb on hover */
 }
+
+
 </style>
