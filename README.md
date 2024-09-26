@@ -17,10 +17,3 @@ ChronoTalk is an innovative AI-powered chatbot that facilitates interactive dial
 - **Text-to-Speech**: Coqui TTS
 - **Animation (Disabled)**: SadTalker (not currently active due to latency issues)
 
-## Installation
-
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/yourgithub/chronotalk.git
-   cd chronotalk
-   ```
